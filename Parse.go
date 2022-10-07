@@ -8,16 +8,26 @@ import (
 	"os"
 )
 
+type root struct {
+	XMLName xml.Name      `xml:"root"`
+	Files   []ProtocolMap `xml:",any"`
+}
+
+type ProtocolMap struct {
+	ProtocolData []SequenceMap `xml:"PrintProtocol>Protocol"`
+}
+
 type SequenceMap struct {
-	SequenceName  []string `xml:"PrintProtocol>Protocol>SubStep>ProtHeaderInfo>HeaderProtPath"`
-	SequenceParam []string `xml:"PrintProtocol>Protocol>SubStep>Card>ProtParameter>Label"`
-	SequenceVal   []string `xml:"PrintProtocol>Protocol>SubStep>Card>ProtParameter>ValueAndUnit"`
+	SequenceName  []string `xml:"SubStep>ProtHeaderInfo>HeaderProtPath"`
+	SequenceParam []string `xml:"SubStep>Card>ProtParameter>Label"`
+	SequenceVal   []string `xml:"SubStep>Card>ProtParameter>ValueAndUnit"`
 }
 
 func main() {
 	var GoldenStand, SuppliedRep string
 	var FirstReportMapping SequenceMap
 	var SecondReportMapping SequenceMap
+	var WholeProtocol ProtocolMap
 	var help bool
 
 	flag.StringVar(&GoldenStand, "gold", "", "Specify the path to the golden standart report file")
@@ -40,15 +50,16 @@ func main() {
 
 	xml.Unmarshal(FbyteValue, &FirstReportMapping)
 	xml.Unmarshal(SbyteValue, &SecondReportMapping)
+	xml.Unmarshal(FbyteValue, &WholeProtocol)
 
 	FirstXmlFile.Close()
 	SecondXmlFile.Close()
 
-	for i := range FirstReportMapping.SequenceName {
-		fmt.Println(FirstReportMapping.SequenceName[i])
-		fmt.Println(FirstReportMapping.SequenceParam[i])
-		fmt.Println(FirstReportMapping.SequenceVal[i])
-
+	for i := range WholeProtocol.ProtocolData {
+		for j := range WholeProtocol.ProtocolData[i].SequenceParam {
+			fmt.Println(WholeProtocol.ProtocolData[i].SequenceName[0] + " - " + WholeProtocol.ProtocolData[i].SequenceParam[j] + " - " + WholeProtocol.ProtocolData[i].SequenceVal[j])
+		}
 	}
-
+	// var Test string = strings.Join(WholeProtocol.ProtocolData[0].SequenceName, ",")
+	//fmt.Println(len(FirstReportMapping.SequenceParam))
 }
