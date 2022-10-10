@@ -24,6 +24,8 @@ func main() {
 	var FirstReportMapping SequenceMap
 	var SecondReportMapping SequenceMap
 	var WholeProtocol ProtocolMap
+	//var TmpReportParamList []string
+	var FinalReportParamList []string
 	var help bool
 
 	flag.StringVar(&GoldenStand, "gold", "", "Specify the path to the golden standart report file")
@@ -56,7 +58,9 @@ func main() {
 		split := strings.Split(Test, `\`)
 		ProtocolName := split[len(split)-1]
 		for j := range WholeProtocol.ProtocolData[i].SequenceParam {
-			fmt.Println(ProtocolName + " - " + WholeProtocol.ProtocolData[i].SequenceParam[j] + " - " + WholeProtocol.ProtocolData[i].SequenceVal[j])
+			TempParameter := ProtocolName + " - " + WholeProtocol.ProtocolData[i].SequenceParam[j] + " - " + WholeProtocol.ProtocolData[i].SequenceVal[j]
+			FinalReportParamList = append(FinalReportParamList, TempParameter)
 		}
 	}
+	fmt.Println(FinalReportParamList[44])
 }
