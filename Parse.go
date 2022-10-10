@@ -9,11 +9,6 @@ import (
 	"strings"
 )
 
-type root struct {
-	XMLName xml.Name      `xml:"root"`
-	Files   []ProtocolMap `xml:",any"`
-}
-
 type ProtocolMap struct {
 	ProtocolData []SequenceMap `xml:"PrintProtocol>Protocol"`
 }
@@ -56,16 +51,12 @@ func main() {
 	FirstXmlFile.Close()
 	SecondXmlFile.Close()
 
-	// for i := range WholeProtocol.ProtocolData {
-	// 	var Test string = strings.Join(WholeProtocol.ProtocolData[i].SequenceName, ",")
-	// 	fmt.Println(Test)
-	// 	for j := range WholeProtocol.ProtocolData[i].SequenceParam {
-	// 		fmt.Println(WholeProtocol.ProtocolData[i].SequenceName[0] + " - " + WholeProtocol.ProtocolData[i].SequenceParam[j] + " - " + WholeProtocol.ProtocolData[i].SequenceVal[j])
-	// 	}
-	// }
-	Delimiter := "\""
-	Test := strings.Join(WholeProtocol.ProtocolData[0].SequenceName, "")
-	split := strings.Split(Test, Delimiter)
-	fmt.Println(len(split))
-	//fmt.Println(len(FirstReportMapping.SequenceParam))
+	for i := range WholeProtocol.ProtocolData {
+		var Test string = strings.Join(WholeProtocol.ProtocolData[i].SequenceName, "")
+		split := strings.Split(Test, `\`)
+		ProtocolName := split[len(split)-1]
+		for j := range WholeProtocol.ProtocolData[i].SequenceParam {
+			fmt.Println(ProtocolName + " - " + WholeProtocol.ProtocolData[i].SequenceParam[j] + " - " + WholeProtocol.ProtocolData[i].SequenceVal[j])
+		}
+	}
 }
