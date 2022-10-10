@@ -19,13 +19,26 @@ type SequenceMap struct {
 	SequenceVal   []string `xml:"SubStep>Card>ProtParameter>ValueAndUnit"`
 }
 
+func Extract_Parameters(Report ProtocolMap) []string {
+	var FinalReportParamList []string
+
+	for i := range Report.ProtocolData {
+		var Test string = strings.Join(Report.ProtocolData[i].SequenceName, "")
+		split := strings.Split(Test, `\`)
+		ProtocolName := split[len(split)-1]
+		for j := range Report.ProtocolData[i].SequenceParam {
+			TempParameter := ProtocolName + " - " + Report.ProtocolData[i].SequenceParam[j] + " - " + Report.ProtocolData[i].SequenceVal[j]
+			FinalReportParamList = append(FinalReportParamList, TempParameter)
+		}
+	}
+	return FinalReportParamList
+}
+
 func main() {
 	var GoldenStand, SuppliedRep string
-	var FirstReportMapping SequenceMap
-	var SecondReportMapping SequenceMap
-	var WholeProtocol ProtocolMap
-	//var TmpReportParamList []string
-	var FinalReportParamList []string
+	var FirstReportMapping ProtocolMap
+	var SecondReportMapping ProtocolMap
+	var SecondReportParamsList, FirstReportParamsList []string
 	var help bool
 
 	flag.StringVar(&GoldenStand, "gold", "", "Specify the path to the golden standart report file")
@@ -48,19 +61,16 @@ func main() {
 
 	xml.Unmarshal(FbyteValue, &FirstReportMapping)
 	xml.Unmarshal(SbyteValue, &SecondReportMapping)
-	xml.Unmarshal(FbyteValue, &WholeProtocol)
 
 	FirstXmlFile.Close()
 	SecondXmlFile.Close()
 
-	for i := range WholeProtocol.ProtocolData {
-		var Test string = strings.Join(WholeProtocol.ProtocolData[i].SequenceName, "")
-		split := strings.Split(Test, `\`)
-		ProtocolName := split[len(split)-1]
-		for j := range WholeProtocol.ProtocolData[i].SequenceParam {
-			TempParameter := ProtocolName + " - " + WholeProtocol.ProtocolData[i].SequenceParam[j] + " - " + WholeProtocol.ProtocolData[i].SequenceVal[j]
-			FinalReportParamList = append(FinalReportParamList, TempParameter)
-		}
-	}
-	fmt.Println(FinalReportParamList[44])
+	// Creates Parameter List for the first report
+	FirstReportParamsList = Extract_Parameters(FirstReportMapping)
+
+	// Creates Parameter list for the Second Report
+	SecondReportParamsList = Extract_Parameters(SecondReportMapping)
+
+	fmt.Println("Number of parameters in the first report: " + fmt.Sprint(len(FirstReportParamsList)))
+	fmt.Println("Number of parameters in the first report: " + fmt.Sprint(len(SecondReportParamsList)))
 }
