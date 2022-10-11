@@ -19,6 +19,16 @@ type SequenceMap struct {
 	SequenceVal   []string `xml:"SubStep>Card>ProtParameter>ValueAndUnit"`
 }
 
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
+}
+
 func Extract_Parameters(Report ProtocolMap) []string {
 	var FinalReportParamList []string
 
@@ -32,6 +42,46 @@ func Extract_Parameters(Report ProtocolMap) []string {
 		}
 	}
 	return FinalReportParamList
+}
+
+func CompareReports(FR, SR []string) []string {
+	var SimilarityList []string
+
+	var T2StarAlias = []string{"T2Star", "T2_Star", "T2*", "T2STAR", "T2_STAR"}
+	var ExcludeAlias = []string{"Pancreas", "pancreas", "kidney", "Kidney", "localizer"}
+	var IdealALias = []string{"IDEAL", "Ideal"}
+	var MolliAlias = []string{"MOLLI", "Molli"}
+
+	split := strings.Split(FR[44], "-")
+	fmt.Println(len(split))
+	for i := range FR {
+		for j := range SR {
+			tFR := strings.Split(FR[i], "-")
+			tSR := strings.Split(SR[j], "-")
+			// T2Star Area
+			if contains(T2StarAlias, tFR[0]) &&
+				contains(T2StarAlias, tSR[0]) &&
+				!contains(ExcludeAlias, tFR[0]) &&
+				!contains(ExcludeAlias, tSR[0]) {
+				fmt.Println(tFR[i])
+				// Ideal Area
+			} else if contains(IdealALias, tFR[0]) &&
+				contains(IdealALias, tSR[0]) &&
+				!contains(ExcludeAlias, tFR[0]) &&
+				!contains(ExcludeAlias, tSR[0]) {
+				fmt.Println(tFR[i])
+				// Molli Area
+			} else if contains(MolliAlias, tFR[0]) &&
+				contains(MolliAlias, tSR[0]) &&
+				!contains(ExcludeAlias, tFR[0]) &&
+				!contains(ExcludeAlias, tSR[0]) {
+				fmt.Println(tFR[i])
+
+			}
+		}
+	}
+
+	return SimilarityList
 }
 
 func main() {
@@ -71,6 +121,11 @@ func main() {
 	// Creates Parameter list for the Second Report
 	SecondReportParamsList = Extract_Parameters(SecondReportMapping)
 
+	fmt.Println(FirstReportParamsList)
+
 	fmt.Println("Number of parameters in the first report: " + fmt.Sprint(len(FirstReportParamsList)))
 	fmt.Println("Number of parameters in the first report: " + fmt.Sprint(len(SecondReportParamsList)))
+
+	Similarity := CompareReports(FirstReportParamsList, SecondReportParamsList)
+	fmt.Print(Similarity)
 }
