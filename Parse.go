@@ -21,11 +21,10 @@ type SequenceMap struct {
 
 func contains(s []string, str string) bool {
 	for _, v := range s {
-		if v == str {
+		if strings.Compare(strings.ReplaceAll(v, " ", ""), strings.ReplaceAll(str, " ", "")) == 0 {
 			return true
 		}
 	}
-
 	return false
 }
 
@@ -47,13 +46,11 @@ func Extract_Parameters(Report ProtocolMap) []string {
 func CompareReports(FR, SR []string) []string {
 	var SimilarityList []string
 
-	var T2StarAlias = []string{"T2Star", "T2_Star", "T2*", "T2STAR", "T2_STAR"}
+	var T2StarAlias = []string{"T2Star", "T2_Star", "T2*", "T2STAR", "T2_STAR", "LMS_T2Star", "LMS T2Star", "LMS_T2STAR", "LMS T2STAR"}
 	var ExcludeAlias = []string{"Pancreas", "pancreas", "kidney", "Kidney", "localizer"}
-	var IdealALias = []string{"IDEAL", "Ideal"}
-	var MolliAlias = []string{"MOLLI", "Molli"}
+	var IdealALias = []string{"IDEAL", "Ideal", "LMS_IDEAL", "LMS IDEAL", "LMS Ideal", "LMS IDEAL"}
+	var MolliAlias = []string{"MOLLI", "Molli", "LMS_MOLLI", "LMS MOLLI", "LMS Molli", "LMS_Molli"}
 
-	split := strings.Split(FR[44], "-")
-	fmt.Println(len(split))
 	for i := range FR {
 		for j := range SR {
 			tFR := strings.Split(FR[i], "-")
@@ -63,20 +60,19 @@ func CompareReports(FR, SR []string) []string {
 				contains(T2StarAlias, tSR[0]) &&
 				!contains(ExcludeAlias, tFR[0]) &&
 				!contains(ExcludeAlias, tSR[0]) {
-				fmt.Println(tFR[i])
+				fmt.Println("Test Passed in T2Star Area")
 				// Ideal Area
 			} else if contains(IdealALias, tFR[0]) &&
 				contains(IdealALias, tSR[0]) &&
 				!contains(ExcludeAlias, tFR[0]) &&
 				!contains(ExcludeAlias, tSR[0]) {
-				fmt.Println(tFR[i])
+				fmt.Println("Test Passed in Ideal Area")
 				// Molli Area
 			} else if contains(MolliAlias, tFR[0]) &&
 				contains(MolliAlias, tSR[0]) &&
 				!contains(ExcludeAlias, tFR[0]) &&
 				!contains(ExcludeAlias, tSR[0]) {
-				fmt.Println(tFR[i])
-
+				fmt.Println("Test Passed in Molli Area")
 			}
 		}
 	}
@@ -120,8 +116,6 @@ func main() {
 
 	// Creates Parameter list for the Second Report
 	SecondReportParamsList = Extract_Parameters(SecondReportMapping)
-
-	fmt.Println(FirstReportParamsList)
 
 	fmt.Println("Number of parameters in the first report: " + fmt.Sprint(len(FirstReportParamsList)))
 	fmt.Println("Number of parameters in the first report: " + fmt.Sprint(len(SecondReportParamsList)))
