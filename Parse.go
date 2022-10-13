@@ -46,10 +46,11 @@ func Extract_Parameters(Report ProtocolMap) []string {
 func CompareReports(FR, SR []string) []string {
 	var SimilarityList []string
 
-	var T2StarAlias = []string{"T2Star", "T2_Star", "T2*", "T2STAR", "T2_STAR", "LMS_T2Star", "LMS T2Star", "LMS_T2STAR", "LMS T2STAR"}
-	var ExcludeAlias = []string{"Pancreas", "pancreas", "kidney", "Kidney", "localizer"}
-	var IdealALias = []string{"IDEAL", "Ideal", "LMS_IDEAL", "LMS IDEAL", "LMS Ideal", "LMS IDEAL"}
-	var MolliAlias = []string{"MOLLI", "Molli", "LMS_MOLLI", "LMS MOLLI", "LMS Molli", "LMS_Molli"}
+	var T2StarAlias = []string{"LMS_T2Star", "LMS T2STAR DIXON", "LMS_T2STAR", "LMS T2STAR"}
+	var ExcludeAlias = []string{"Pancreas", "pancreas", "kidney", "Kidney", "localizer_haste_bh"}
+	var IdealALias = []string{"LMS_IDEAL", "LMS IDEAL", "LMS Ideal", "LMS IDEAL"}
+	var MolliAlias = []string{"LMS_MOLLI", "LMS MOLLI", "LMS Molli", "LMS_Molli"}
+	var MostAlias = []string{"LMS MOST", "LMS Most", "LMS_MOST", "LMS_Most"}
 
 	for i := range FR {
 		for j := range SR {
@@ -73,6 +74,11 @@ func CompareReports(FR, SR []string) []string {
 				!contains(ExcludeAlias, tFR[0]) &&
 				!contains(ExcludeAlias, tSR[0]) {
 				fmt.Println("Test Passed in Molli Area")
+			} else if contains(MostAlias, tFR[0]) &&
+				contains(MostAlias, tSR[0]) &&
+				!contains(ExcludeAlias, tFR[0]) &&
+				!contains(ExcludeAlias, tSR[0]) {
+				fmt.Println("Test Passed in MOST Area")
 			}
 		}
 	}
