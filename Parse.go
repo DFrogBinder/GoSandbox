@@ -10,18 +10,20 @@ import (
 )
 
 type ProtocolMap struct {
-	ProtocolData []SequenceMap `xml:"PrintOut>PrintProtocol>Protocol"`
+	ProtocolData []Protocol `xml:"PrintProtocol>Protocol"`
 }
 
-type Cards struct {
-	Name          []string `xml:"name,attr"`
+type Card struct {
+	ID            string   `xml:"ID,attr"`
 	SequenceParam []string `xml:"ProtParameter>Label"`
 	SequenceVal   []string `xml:"ProtParameter>ValueAndUnit"`
 }
 
-type SequenceMap struct {
-	SequenceName []string `xml:"SubStep>ProtHeaderInfo>HeaderProtPath"`
-	SequeceCard  Cards    `xml:"SubStep>Card"`
+type Protocol struct {
+	ID string `xml:"Id,attr"`
+	//Title        string `xml:"HeaderTitle"`
+	SequenceName string `xml:"SubStep>ProtHeaderInfo>HeaderProtPath"`
+	SequeceCard  []Card `xml:"SubStep>Card"`
 }
 
 func stcmp(s []string, str string) bool {
