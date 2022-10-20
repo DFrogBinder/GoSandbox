@@ -10,16 +10,21 @@ import (
 )
 
 type ProtocolMap struct {
-	ProtocolData []SequenceMap `xml:"PrintProtocol>Protocol"`
+	ProtocolData []SequenceMap `xml:"PrintOut>PrintProtocol>Protocol"`
+}
+
+type Cards struct {
+	Name          []string `xml:"name,attr"`
+	SequenceParam []string `xml:"ProtParameter>Label"`
+	SequenceVal   []string `xml:"ProtParameter>ValueAndUnit"`
 }
 
 type SequenceMap struct {
-	SequenceName  []string `xml:"SubStep>ProtHeaderInfo>HeaderProtPath"`
-	SequenceParam []string `xml:"SubStep>Card>ProtParameter>Label"`
-	SequenceVal   []string `xml:"SubStep>Card>ProtParameter>ValueAndUnit"`
+	SequenceName []string `xml:"SubStep>ProtHeaderInfo>HeaderProtPath"`
+	SequeceCard  Cards    `xml:"SubStep>Card"`
 }
 
-func contains(s []string, str string) bool {
+func stcmp(s []string, str string) bool {
 	for _, v := range s {
 		if strings.Compare(strings.ReplaceAll(v, " ", ""), strings.ReplaceAll(str, " ", "")) == 0 {
 			return true
@@ -31,15 +36,15 @@ func contains(s []string, str string) bool {
 func Extract_Parameters(Report ProtocolMap) []string {
 	var FinalReportParamList []string
 
-	for i := range Report.ProtocolData {
-		var Test string = strings.Join(Report.ProtocolData[i].SequenceName, "")
-		split := strings.Split(Test, `\`)
-		ProtocolName := split[len(split)-1]
-		for j := range Report.ProtocolData[i].SequenceParam {
-			TempParameter := ProtocolName + " - " + Report.ProtocolData[i].SequenceParam[j] + " - " + Report.ProtocolData[i].SequenceVal[j]
-			FinalReportParamList = append(FinalReportParamList, TempParameter)
-		}
-	}
+	// for i := range Report.ProtocolData {
+	// 	var Test string = strings.Join(Report.ProtocolData[i].SequenceName, "")
+	// 	split := strings.Split(Test, `\`)
+	// 	ProtocolName := split[len(split)-1]
+	// 	for j := range Report.ProtocolData[i].SequenceParam {
+	// 		TempParameter := ProtocolName + " - " + Report.ProtocolData[i].SequenceParam[j] + " - " + Report.ProtocolData[i].SequenceVal[j]
+	// 		FinalReportParamList = append(FinalReportParamList, TempParameter)
+	// 	}
+	// }
 	return FinalReportParamList
 }
 
@@ -57,27 +62,27 @@ func CompareReports(FR, SR []string) []string {
 			tFR := strings.Split(FR[i], "-")
 			tSR := strings.Split(SR[j], "-")
 			// T2Star Area
-			if contains(T2StarAlias, tFR[0]) &&
-				contains(T2StarAlias, tSR[0]) &&
-				!contains(ExcludeAlias, tFR[0]) &&
-				!contains(ExcludeAlias, tSR[0]) {
+			if stcmp(T2StarAlias, tFR[0]) &&
+				stcmp(T2StarAlias, tSR[0]) &&
+				!stcmp(ExcludeAlias, tFR[0]) &&
+				!stcmp(ExcludeAlias, tSR[0]) {
 				fmt.Println("Test Passed in T2Star Area")
 				// Ideal Area
-			} else if contains(IdealALias, tFR[0]) &&
-				contains(IdealALias, tSR[0]) &&
-				!contains(ExcludeAlias, tFR[0]) &&
-				!contains(ExcludeAlias, tSR[0]) {
+			} else if stcmp(IdealALias, tFR[0]) &&
+				stcmp(IdealALias, tSR[0]) &&
+				!stcmp(ExcludeAlias, tFR[0]) &&
+				!stcmp(ExcludeAlias, tSR[0]) {
 				fmt.Println("Test Passed in Ideal Area")
 				// Molli Area
-			} else if contains(MolliAlias, tFR[0]) &&
-				contains(MolliAlias, tSR[0]) &&
-				!contains(ExcludeAlias, tFR[0]) &&
-				!contains(ExcludeAlias, tSR[0]) {
+			} else if stcmp(MolliAlias, tFR[0]) &&
+				stcmp(MolliAlias, tSR[0]) &&
+				!stcmp(ExcludeAlias, tFR[0]) &&
+				!stcmp(ExcludeAlias, tSR[0]) {
 				fmt.Println("Test Passed in Molli Area")
-			} else if contains(MostAlias, tFR[0]) &&
-				contains(MostAlias, tSR[0]) &&
-				!contains(ExcludeAlias, tFR[0]) &&
-				!contains(ExcludeAlias, tSR[0]) {
+			} else if stcmp(MostAlias, tFR[0]) &&
+				stcmp(MostAlias, tSR[0]) &&
+				!stcmp(ExcludeAlias, tFR[0]) &&
+				!stcmp(ExcludeAlias, tSR[0]) {
 				fmt.Println("Test Passed in MOST Area")
 			}
 		}
@@ -111,7 +116,7 @@ func main() {
 	FbyteValue, _ := ioutil.ReadAll(FirstXmlFile)
 	SbyteValue, _ := ioutil.ReadAll(SecondXmlFile)
 
-	xml.Unmarshal(FbyteValue, &FirstReportMapping)
+	fmt.Println(xml.Unmarshal(FbyteValue, &FirstReportMapping))
 	xml.Unmarshal(SbyteValue, &SecondReportMapping)
 
 	FirstXmlFile.Close()
@@ -126,6 +131,6 @@ func main() {
 	fmt.Println("Number of parameters in the first report: " + fmt.Sprint(len(FirstReportParamsList)))
 	fmt.Println("Number of parameters in the first report: " + fmt.Sprint(len(SecondReportParamsList)))
 
-	Similarity := CompareReports(FirstReportParamsList, SecondReportParamsList)
-	fmt.Print(Similarity)
+	// Similarity := CompareReports(FirstReportParamsList, SecondReportParamsList)
+	// fmt.Print(Similarity)
 }
