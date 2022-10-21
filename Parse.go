@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 type ProtocolMap struct {
@@ -152,10 +155,9 @@ func main() {
 	// Creates Parameter list for the Second Report
 	SecondReportParamsList = Extract_Parameters(SecondReportMapping)
 
-	fmt.Println("Number of parameters in the first report: " + fmt.Sprint(len(FirstReportParamsList)))
-	fmt.Println("Number of parameters in the first report: " + fmt.Sprint(len(SecondReportParamsList)))
-
 	Similarity, Message := CompareReports(FirstReportParamsList, SecondReportParamsList)
-	fmt.Println("Correct Paramters: ", len(Similarity))
+	color.Green(fmt.Sprintln("Correct Paramters:", strconv.Itoa(len(Similarity))))
+	color.Red(fmt.Sprintln("Wrong Paramters:", strconv.Itoa(len(Message))))
+
 	fmt.Println(Message)
 }
