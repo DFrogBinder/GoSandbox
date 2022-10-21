@@ -26,6 +26,20 @@ type Card struct {
 	SequenceVal   []string `xml:"ProtParameter>ValueAndUnit"`
 }
 
+func Compare_Inner_Structure(FR []string, SR []string) ([]int, []string) {
+	var SimilarityList []int
+	var WrongParameters []string
+	if FR[1] == SR[1] && FR[2] == SR[2] {
+		if FR[3] == SR[3] {
+			SimilarityList = append(SimilarityList, 1)
+		} else {
+			msg := fmt.Sprintln("In: ", SR[0], SR[1], "Found: ", SR[2], SR[3], " => Should be:", FR[3])
+			WrongParameters = append(WrongParameters, msg)
+		}
+	}
+	return SimilarityList, WrongParameters
+}
+
 func contains(s []string, str string) bool {
 	for _, v := range s {
 		if v == str {
@@ -73,60 +87,24 @@ func CompareReports(FR, SR []string) ([]int, []string) {
 				contains(T2StarAlias, tSR[0]) &&
 				!contains(ExcludeAlias, tFR[0]) &&
 				!contains(ExcludeAlias, tSR[0]) {
-				if tFR[1] == tSR[1] && tFR[2] == tSR[2] {
-					if tFR[3] == tSR[3] {
-						SimilarityList = append(SimilarityList, 1)
-					} else {
-						msg := fmt.Sprintln("In: ", tSR[0], tSR[1], "Found: ", tSR[2], tSR[3], " => Should be:", tFR[3])
-						WrongParameters = append(WrongParameters, msg)
-					}
-				} else {
-					continue
-				}
+				SimilarityList, WrongParameters = Compare_Inner_Structure(tFR, tSR)
 				// Ideal Area
 			} else if contains(IdealALias, tFR[0]) &&
 				contains(IdealALias, tSR[0]) &&
 				!contains(ExcludeAlias, tFR[0]) &&
 				!contains(ExcludeAlias, tSR[0]) {
-				if tFR[1] == tSR[1] && tFR[2] == tSR[2] {
-					if tFR[3] == tSR[3] {
-						SimilarityList = append(SimilarityList, 1)
-					} else {
-						msg := fmt.Sprintln("In: ", tSR[0], tSR[1], "Found: ", tSR[2], tSR[3], " => Should be:", tFR[3])
-						WrongParameters = append(WrongParameters, msg)
-					}
-				} else {
-					continue
-				}
+				SimilarityList, WrongParameters = Compare_Inner_Structure(tFR, tSR)
 				// Molli Area
 			} else if contains(MolliAlias, tFR[0]) &&
 				contains(MolliAlias, tSR[0]) &&
 				!contains(ExcludeAlias, tFR[0]) &&
 				!contains(ExcludeAlias, tSR[0]) {
-				if tFR[1] == tSR[1] && tFR[2] == tSR[2] {
-					if tFR[3] == tSR[3] {
-						SimilarityList = append(SimilarityList, 1)
-					} else {
-						msg := fmt.Sprintln("In: ", tSR[0], tSR[1], "Found: ", tSR[2], tSR[3], " => Should be:", tFR[3])
-						WrongParameters = append(WrongParameters, msg)
-					}
-				} else {
-					continue
-				}
+				SimilarityList, WrongParameters = Compare_Inner_Structure(tFR, tSR)
 			} else if contains(MostAlias, tFR[0]) &&
 				contains(MostAlias, tSR[0]) &&
 				!contains(ExcludeAlias, tFR[0]) &&
 				!contains(ExcludeAlias, tSR[0]) {
-				if tFR[1] == tSR[1] && tFR[2] == tSR[2] {
-					if tFR[3] == tSR[3] {
-						SimilarityList = append(SimilarityList, 1)
-					} else {
-						msg := fmt.Sprintln("In: ", tSR[0], tSR[1], "Found: ", tSR[2], tSR[3], " => Should be:", tFR[3])
-						WrongParameters = append(WrongParameters, msg)
-					}
-				} else {
-					continue
-				}
+				SimilarityList, WrongParameters = Compare_Inner_Structure(tFR, tSR)
 			}
 		}
 	}
