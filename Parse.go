@@ -28,7 +28,7 @@ type Card struct {
 
 func contains(s []string, str string) bool {
 	for _, v := range s {
-		if strings.Compare(strings.ReplaceAll(v, " ", ""), strings.ReplaceAll(str, " ", "")) == 0 {
+		if v == str {
 			return true
 		}
 	}
@@ -45,7 +45,7 @@ func Extract_Parameters(Report ProtocolMap) []string {
 		ProtocolName := split[len(split)-1]
 		for j := range Report.ProtocolData[i].Card {
 			for k := range Report.ProtocolData[i].Card[j].SequenceParam {
-				TempParameter = ProtocolName + "_" + Report.ProtocolData[i].Card[j].Name + "_" + Report.ProtocolData[i].Card[j].SequenceParam[k] + "_" + Report.ProtocolData[i].Card[j].SequenceVal[k]
+				TempParameter = ProtocolName + "$" + Report.ProtocolData[i].Card[j].Name + "$" + Report.ProtocolData[i].Card[j].SequenceParam[k] + "$" + Report.ProtocolData[i].Card[j].SequenceVal[k]
 			}
 			FinalReportParamList = append(FinalReportParamList, TempParameter)
 		}
@@ -64,31 +64,58 @@ func CompareReports(FR, SR []string) []string {
 
 	for i := range FR {
 		for j := range SR {
-			tFR := strings.Split(FR[i], "-")
-			tSR := strings.Split(SR[j], "-")
+			tFR := strings.Split(FR[i], "$")
+			tSR := strings.Split(SR[j], "$")
+
 			// T2Star Area
 			if contains(T2StarAlias, tFR[0]) &&
 				contains(T2StarAlias, tSR[0]) &&
 				!contains(ExcludeAlias, tFR[0]) &&
 				!contains(ExcludeAlias, tSR[0]) {
-				fmt.Println("Test Passed in T2Star Area")
+				if tFR[1] == tSR[1] && tFR[2] == tSR[2] {
+					if tFR[3] == tSR[3] {
+						fmt.Println("================================================================")
+						fmt.Println(tFR, " = ", tSR)
+					}
+				} else {
+					continue
+				}
 				// Ideal Area
 			} else if contains(IdealALias, tFR[0]) &&
 				contains(IdealALias, tSR[0]) &&
 				!contains(ExcludeAlias, tFR[0]) &&
 				!contains(ExcludeAlias, tSR[0]) {
-				fmt.Println("Test Passed in Ideal Area")
+				if tFR[1] == tSR[1] && tFR[2] == tSR[2] {
+					if tFR[3] == tSR[3] {
+						fmt.Println("================================================================")
+						fmt.Println(tFR, " = ", tSR)
+					}
+				} else {
+					continue
+				}
 				// Molli Area
 			} else if contains(MolliAlias, tFR[0]) &&
 				contains(MolliAlias, tSR[0]) &&
 				!contains(ExcludeAlias, tFR[0]) &&
 				!contains(ExcludeAlias, tSR[0]) {
-				fmt.Println("Test Passed in Molli Area")
+				if tFR[1] == tSR[1] && tFR[2] == tSR[2] {
+					if tFR[3] == tSR[3] {
+						fmt.Println("================================================================")
+						fmt.Println(tFR, " = ", tSR)
+					}
+				} else {
+					continue
+				}
 			} else if contains(MostAlias, tFR[0]) &&
 				contains(MostAlias, tSR[0]) &&
 				!contains(ExcludeAlias, tFR[0]) &&
 				!contains(ExcludeAlias, tSR[0]) {
-				fmt.Println("Test Passed in MOST Area")
+				if tFR[1] == tSR[1] && tFR[2] == tSR[2] {
+					if tFR[3] == tSR[3] {
+						fmt.Println("================================================================")
+						fmt.Println(tFR, " = ", tSR)
+					}
+				}
 			}
 		}
 	}
