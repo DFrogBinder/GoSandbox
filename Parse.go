@@ -53,8 +53,9 @@ func Extract_Parameters(Report ProtocolMap) []string {
 	return FinalReportParamList
 }
 
-func CompareReports(FR, SR []string) []string {
-	var SimilarityList []string
+func CompareReports(FR, SR []string) ([]int, []string) {
+	var SimilarityList []int
+	var WrongParameters []string
 
 	var T2StarAlias = []string{"LMS_T2Star", "LMS T2STAR DIXON", "LMS_T2STAR", "LMS T2STAR"}
 	var ExcludeAlias = []string{"Pancreas", "pancreas", "kidney", "Kidney", "localizer_haste_bh"}
@@ -74,8 +75,10 @@ func CompareReports(FR, SR []string) []string {
 				!contains(ExcludeAlias, tSR[0]) {
 				if tFR[1] == tSR[1] && tFR[2] == tSR[2] {
 					if tFR[3] == tSR[3] {
-						fmt.Println("================================================================")
-						fmt.Println(tFR, " = ", tSR)
+						SimilarityList = append(SimilarityList, 1)
+					} else {
+						msg := fmt.Sprintln("In: ", tSR[0], tSR[1], "Found: ", tSR[2], tSR[3], " => Should be:", tFR[3])
+						WrongParameters = append(WrongParameters, msg)
 					}
 				} else {
 					continue
@@ -87,8 +90,10 @@ func CompareReports(FR, SR []string) []string {
 				!contains(ExcludeAlias, tSR[0]) {
 				if tFR[1] == tSR[1] && tFR[2] == tSR[2] {
 					if tFR[3] == tSR[3] {
-						fmt.Println("================================================================")
-						fmt.Println(tFR, " = ", tSR)
+						SimilarityList = append(SimilarityList, 1)
+					} else {
+						msg := fmt.Sprintln("In: ", tSR[0], tSR[1], "Found: ", tSR[2], tSR[3], " => Should be:", tFR[3])
+						WrongParameters = append(WrongParameters, msg)
 					}
 				} else {
 					continue
@@ -100,8 +105,10 @@ func CompareReports(FR, SR []string) []string {
 				!contains(ExcludeAlias, tSR[0]) {
 				if tFR[1] == tSR[1] && tFR[2] == tSR[2] {
 					if tFR[3] == tSR[3] {
-						fmt.Println("================================================================")
-						fmt.Println(tFR, " = ", tSR)
+						SimilarityList = append(SimilarityList, 1)
+					} else {
+						msg := fmt.Sprintln("In: ", tSR[0], tSR[1], "Found: ", tSR[2], tSR[3], " => Should be:", tFR[3])
+						WrongParameters = append(WrongParameters, msg)
 					}
 				} else {
 					continue
@@ -112,15 +119,19 @@ func CompareReports(FR, SR []string) []string {
 				!contains(ExcludeAlias, tSR[0]) {
 				if tFR[1] == tSR[1] && tFR[2] == tSR[2] {
 					if tFR[3] == tSR[3] {
-						fmt.Println("================================================================")
-						fmt.Println(tFR, " = ", tSR)
+						SimilarityList = append(SimilarityList, 1)
+					} else {
+						msg := fmt.Sprintln("In: ", tSR[0], tSR[1], "Found: ", tSR[2], tSR[3], " => Should be:", tFR[3])
+						WrongParameters = append(WrongParameters, msg)
 					}
+				} else {
+					continue
 				}
 			}
 		}
 	}
 
-	return SimilarityList
+	return SimilarityList, WrongParameters
 }
 
 func main() {
@@ -168,6 +179,7 @@ func main() {
 	fmt.Println("Number of parameters in the first report: " + fmt.Sprint(len(FirstReportParamsList)))
 	fmt.Println("Number of parameters in the first report: " + fmt.Sprint(len(SecondReportParamsList)))
 
-	Similarity := CompareReports(FirstReportParamsList, SecondReportParamsList)
-	fmt.Print(Similarity)
+	Similarity, Message := CompareReports(FirstReportParamsList, SecondReportParamsList)
+	fmt.Println(len(Similarity))
+	fmt.Println(Message)
 }
