@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
+	"golang.org/x/net/html"
 )
 
 type ProtocolMap struct {
@@ -68,6 +69,17 @@ func Extract_Parameters(Report ProtocolMap) []string {
 	return FinalReportParamList
 }
 
+func ReadFile(fileName string) (string, error) {
+
+	bs, err := ioutil.ReadFile(fileName)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(bs), nil
+}
+
 func CompareReports(FR, SR []string) ([]int, []string) {
 	var SimilarityList []int
 	var WrongParameters []string
@@ -113,51 +125,101 @@ func CompareReports(FR, SR []string) ([]int, []string) {
 	return SimilarityList, WrongParameters
 }
 
+func ParseHTML(text string) (data []string) {
+
+	tkn := html.NewTokenizer(strings.NewReader(text))
+
+	var vals []string
+
+	var isLi bool
+
+	for {
+
+		tt := tkn.Next()
+
+		switch {
+
+		case tt == html.ErrorToken:
+			return vals
+
+		case tt == html.StartTagToken:
+
+			t := tkn.Token()
+			isLi = t.Data == "li"
+
+		case tt == html.TextToken:
+
+			t := tkn.Token()
+
+			if isLi {
+				vals = append(vals, t.Data)
+			}
+
+			isLi = false
+		}
+	}
+}
+
 func main() {
-	var GoldenStand, SuppliedRep string
-	var FirstReportMapping ProtocolMap
-	var SecondReportMapping ProtocolMap
+	var GoldenStand, SuppliedRep, Vendor string
 	var SecondReportParamsList, FirstReportParamsList []string
 	var help bool
 
-	flag.StringVar(&GoldenStand, "gold", "", "Specify the path to the golden standart report file")
-	flag.StringVar(&SuppliedRep, "supp", "", "Specify the path to the supplied report file")
+	flag.StringVar(&GoldenStand, "g", "", "Specify the path to the golden standart report file")
+	flag.StringVar(&SuppliedRep, "s", "", "Specify the path to the supplied report file")
+	flag.StringVar(&Vendor, "v", "", "Specify the scanner manufacturer [Siemens, GE, Philips]")
 	flag.BoolVar(&help, "help", false, "Display usage information")
 
 	flag.Parse()
+	if Vendor == "GE" {
+		var FirstReportMapping ProtocolMap
+		var SecondReportMapping ProtocolMap
 
-	// Open our xmlFile
-	FirstXmlFile, err := os.Open(GoldenStand)
-	SecondXmlFile, err := os.Open(SuppliedRep)
+		// Open our xmlFile
+		FirstXmlFile, err := os.Open(GoldenStand)
+		SecondXmlFile, err := os.Open(SuppliedRep)
 
-	if err != nil {
-		fmt.Println(err)
-	}
+		if err != nil {
+			fmt.Println(err)
+		}
 
-	// read our opened xmlFile as a byte array.
-	FbyteValue, _ := ioutil.ReadAll(FirstXmlFile)
-	SbyteValue, _ := ioutil.ReadAll(SecondXmlFile)
+		// read our opened xmlFile as a byte array.
+		FbyteValue, _ := ioutil.ReadAll(FirstXmlFile)
+		SbyteValue, _ := ioutil.ReadAll(SecondXmlFile)
 
-	if FbyteValue != nil && SbyteValue != nil {
-		xml.Unmarshal(FbyteValue, &FirstReportMapping)
-		xml.Unmarshal(SbyteValue, &SecondReportMapping)
+		if FbyteValue != nil && SbyteValue != nil {
+			xml.Unmarshal(FbyteValue, &FirstReportMapping)
+			xml.Unmarshal(SbyteValue, &SecondReportMapping)
+		} else {
+			fmt.Println("Problem is reading the input files - value is <nil>. Terminating...")
+			return
+		}
+
+		FirstXmlFile.Close()
+		SecondXmlFile.Close()
+
+		// Creates Parameter List for the first report
+		FirstReportParamsList = Extract_Parameters(FirstReportMapping)
+
+		// Creates Parameter list for the Second Report
+		SecondReportParamsList = Extract_Parameters(SecondReportMapping)
+
+		Similarity, Message := CompareReports(FirstReportParamsList, SecondReportParamsList)
+		color.Green(fmt.Sprintln("Correct Paramters:", strconv.Itoa(len(Similarity))))
+		color.Red(fmt.Sprintln("Wrong Paramters:", strconv.Itoa(len(Message))))
+
+		fmt.Println(Message)
+	} else if Vendor == "Siemens" {
+
+		FirstReport, _ := ReadFile(GoldenStand)
+		// SecondReport, _ := ReadFile(SuppliedRep)
+
+		fmt.Println(FirstReport)
+
+	} else if Vendor == "Philips" {
+
 	} else {
-		fmt.Println("Problem is reading the input files - value is <nil>. Terminating...")
+		fmt.Println("Unknown vendor, terminating...")
 		return
 	}
-
-	FirstXmlFile.Close()
-	SecondXmlFile.Close()
-
-	// Creates Parameter List for the first report
-	FirstReportParamsList = Extract_Parameters(FirstReportMapping)
-
-	// Creates Parameter list for the Second Report
-	SecondReportParamsList = Extract_Parameters(SecondReportMapping)
-
-	Similarity, Message := CompareReports(FirstReportParamsList, SecondReportParamsList)
-	color.Green(fmt.Sprintln("Correct Paramters:", strconv.Itoa(len(Similarity))))
-	color.Red(fmt.Sprintln("Wrong Paramters:", strconv.Itoa(len(Message))))
-
-	fmt.Println(Message)
 }
